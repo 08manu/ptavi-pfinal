@@ -9,6 +9,7 @@ from xml.sax.handler import ContentHandler
 config = sys.argv[1]
 metodo = sys.argv[2]
 opcion = sys.argv[3]
+peticion = config + ' ' + metodo + ' ' + opcion 
 
 class uaCLIENT(ContentHandler):
 
@@ -33,8 +34,6 @@ class uaCLIENT(ContentHandler):
     def get_tags(self):
         return self.Lista
 
-
-
 if __name__ == "__main__":
 
     parser = make_parser()
@@ -56,4 +55,12 @@ if __name__ == "__main__":
     my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     my_socket.connect((uaserver_ip, int(uaserver_puerto)))
+
+    if metodo == "REGISTER" or "INVITE" or "ACK" or "BYE":
+        print("Enviando:", peticion)
+        my_socket.send(bytes(peticion, 'utf-8') + b'\r\n')
+        data = my_socket.recv(1024)
+
+print('Recibido --', dara.decode('utf-8'))
+print("Terminando socket...")
 
