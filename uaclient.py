@@ -5,6 +5,8 @@ import socket
 import sys
 from xml.sax import make_parser
 from xml.sax.handler import ContentHandler
+import time
+from datetime import date
 
 config = sys.argv[1]
 metodo = sys.argv[2]
@@ -51,10 +53,35 @@ if __name__ == "__main__":
     log_path = Lista_xml[4][1]['path']
     audio_path = Lista_xml[5][1]['path']
 
-
     my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     my_socket.connect((uaserver_ip, int(uaserver_puerto)))
+
+def log(formato, evento, linea)
+    fichero = log_path
+    fichero_log = open(fichero, 'a')
+    formato = '%Y%m%d%H%M%S'
+    hora_actual = datetime.now().strftime(formato)
+    hora = fich.write(hora_actual())
+
+    if evento == "enviar":
+        fichero_log.write(' Sent to ' + regproxy_ip + ":" + str(regproxy_puerto) +
+                        ": " + linea + '\r\n')
+    elif evento == "recibir":
+        fichero_log.write(' Received from ' + regproxy_ip + ":" + str(regproxy_puerto) +
+                        ": " + linea + '\r\n')
+    elif evento == "error":
+        fichero_log.write(' Error: ' + linea + '\r\n')
+    elif evento == "Comenzar"
+        fichero_log.write(' Starting... ')
+    elif evento == "Finalizar"
+        fichero_log.write('
+
+
+    
+    
+    
+    
 
     if metodo == "REGISTER" or "INVITE" or "ACK" or "BYE":
         print("Enviando:", peticion)
