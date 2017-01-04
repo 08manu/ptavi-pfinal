@@ -5,6 +5,7 @@ import socket
 import sys
 from xml.sax import make_parser
 from xml.sax.handler import ContentHandler
+import socketserver
 
 config = sys.argv[1]
 
@@ -27,8 +28,18 @@ class uaSERVER(ContentHandler):
     def get_tags(self):
         return self.Listaprox
 
-    def log(
-        fichero = Listaprox_xml
+class EchoHandler(socketserver.DatagramRequestHandler):
+
+    def handle(self):
+        while 1:
+            line = self.rfile.read()
+            if not line:
+                break
+            print("El cliente nos manda " + line.decode('utf-8'))
+            lista = line.decode('utf-8')
+            (account_us, uaserver_puerto, sip) = lista.split()
+            if metodo == "REGISTER":
+                self.wfile.write(b"SIP/2.0  401 Unauthorized")
 
 if __name__ == "__main__":
 
@@ -38,5 +49,11 @@ if __name__ == "__main__":
         parser.setContentHandler(MyHandler)
         parser.parse(open(config))
         Listaprox_xml = MyHandler.get_tags()
+        regproxy_ip = Listaprox_xml[0][1]['ip']
+        regproxy_puerto = int(Listaprox_xml[0][1]['puerto'])
+        serv_prox = socketserver.UDPServer((regproxy_ip, regproxy_puerto), EchoHandler)
+        print("Listening")
+        serv_prox.serve_forever()
+        
     else:
         sys.exit("Usage: python proxy_registrar.py config")

@@ -11,7 +11,6 @@ from datetime import date
 config = sys.argv[1]
 metodo = sys.argv[2]
 opcion = sys.argv[3]
-peticion = config + ' ' + metodo + ' ' + opcion 
 
 class uaCLIENT(ContentHandler):
 
@@ -57,37 +56,32 @@ if __name__ == "__main__":
     my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     my_socket.connect((uaserver_ip, int(uaserver_puerto)))
 
-def log(formato, evento, linea)
-    fichero = log_path
-    fichero_log = open(fichero, 'a')
-    formato = '%Y%m%d%H%M%S'
-    hora_actual = datetime.now().strftime(formato)
-    hora = fich.write(hora_actual())
+#def log(formato, evento, linea)
+    #fichero = log_path
+    #fichero_log = open(fichero, 'a')
+    #formato = '%Y%m%d%H%M%S'
+    #hora_actual = datetime.now().strftime(formato)
+    #hora = fich.write(hora_actual())
 
-    if evento == "enviar":
-        fichero_log.write(' Sent to ' + regproxy_ip + ":" + str(regproxy_puerto) +
-                        ": " + linea + '\r\n')
-    elif evento == "recibir":
-        fichero_log.write(' Received from ' + regproxy_ip + ":" + str(regproxy_puerto) +
-                        ": " + linea + '\r\n')
-    elif evento == "error":
-        fichero_log.write(' Error: ' + linea + '\r\n')
-    elif evento == "Comenzar"
-        fichero_log.write(' Starting... ')
-    elif evento == "Finalizar"
-        fichero_log.write('
+    #if evento == "enviar":
+        #fichero_log.write(' Sent to ' + regproxy_ip + ":" + str(regproxy_puerto) +
+#                        ": " + linea + '\r\n')
+    #elif evento == "recibir":
+        #fichero_log.write(' Received from ' + regproxy_ip + ":" + str(regproxy_puerto) +
+#                        ": " + linea + '\r\n')
+    #elif evento == "error":
+        #fichero_log.write(' Error: ' + linea + '\r\n')
+    #elif evento == "Comenzar"
+        #fichero_log.write(' Starting... ')
+    #elif evento == "Finalizar"
+        #fichero_log.write('
 
-
-    
-    
-    
-    
-
-    if metodo == "REGISTER" or "INVITE" or "ACK" or "BYE":
+    if metodo == "REGISTER":
+        peticion = " sip:" + account_us + ":" + uaserver_puerto + " " + "SIP/2.0\r\n"
         print("Enviando:", peticion)
         my_socket.send(bytes(peticion, 'utf-8') + b'\r\n')
         data = my_socket.recv(1024)
 
-print('Recibido --', dara.decode('utf-8'))
+print('Recibido --', data.decode('utf-8'))
 print("Terminando socket...")
 
