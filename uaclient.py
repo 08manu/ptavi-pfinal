@@ -54,7 +54,7 @@ if __name__ == "__main__":
 
     my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    my_socket.connect((uaserver_ip, int(uaserver_puerto)))
+    my_socket.connect((regproxy_ip, int(regproxy_puerto))) #Conecto con el proxy
 
 #def log(formato, evento, linea)
     #fichero = log_path
@@ -77,7 +77,8 @@ if __name__ == "__main__":
         #fichero_log.write('
 
     if metodo == "REGISTER":
-        peticion = " sip:" + account_us + ":" + uaserver_puerto + " " + "SIP/2.0\r\n"
+        #envío petición con el puerto y la ip de mi cliente
+        peticion = metodo + " sip:" + account_us + ":" + uaserver_puerto + " " + "SIP/2.0\r\n" + "Expires: " + opcion + "\r\n"
         print("Enviando:", peticion)
         my_socket.send(bytes(peticion, 'utf-8') + b'\r\n')
         data = my_socket.recv(1024)
