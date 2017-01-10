@@ -82,7 +82,29 @@ if __name__ == "__main__":
         print("Enviando:", peticion)
         my_socket.send(bytes(peticion, 'utf-8') + b'\r\n')
         data = my_socket.recv(1024)
+        print('Recibido --', data.decode('utf-8'))
 
-print('Recibido --', data.decode('utf-8'))
+        list_rec = data.decode('utf-8').split()
+        if list_rec[1] == "401":
+            peticion = metodo + " sip:" + account_us + ":" + uaserver_puerto + " " + "SIP/2.0\r\n" + "Expires: " + opcion + " \r\n" + "Authorizacion: Digest response=123123212312321212123" + "\r\n"
+            print("Enviando:", peticion)
+            my_socket.send(bytes(peticion, 'utf-8') + b'\r\n')
+            datos = my_socket.recv(1024)
+        print('Recibido --', datos.decode('utf-8'))
+    elif metodo == "INVITE":
+        peticion = metodo + " sip:" + account_us + "SIP/2.0\r\n" + "Content-Type: applicatio/sdp\r\n\r\n" + "v=0\r\n" + "o=" + account_us + ' ' + uaserver_ip + "s=misession\r\n" + "t=0" + "m=audio" + rtpaudio_puerto + " RTP\r\n\r\n"
+        print("Enviando:", peticion)
+        my_socket.send(bytes(peticion, 'utf-8') + b'\r\n')
+        data = my_socket.recv(1024)
+        print('Recibido --', data.decode('utf-8'))
+
+        #list_rec = data.decode('utf-8').split()
+        #if list_rec[1] == "401":
+            #peticion = metodo + " sip:" + account_us + ":" + uaserver_puerto + " " + "SIP/2.0\r\n" + "Expires: " + opcion + " \r\n" + "Authorizacion: Digest response=123123212312321212123" + "\r\n"
+            #print("Enviando:", peticion)
+            #my_socket.send(bytes(peticion, 'utf-8') + b'\r\n')
+            #datos = my_socket.recv(1024)
+        #print('Recibido --', datos.decode('utf-8'))
+
 print("Terminando socket...")
 
