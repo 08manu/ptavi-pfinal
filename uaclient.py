@@ -7,6 +7,7 @@ from xml.sax import make_parser
 from xml.sax.handler import ContentHandler
 import time
 from datetime import date
+import os
 
 config = sys.argv[1]
 metodo = sys.argv[2]
@@ -78,7 +79,8 @@ if __name__ == "__main__":
 
     if metodo == "REGISTER":
         #envío petición con el puerto y la ip de mi cliente
-        peticion = metodo + " sip:" + account_us + ":" + uaserver_puerto + " " + "SIP/2.0\r\n" + "Expires: " + opcion + "\r\n"
+        peticion = metodo + " sip:" + account_us + ":" + uaserver_puerto + " "
+        peticion += "SIP/2.0\r\n" + "Expires: " + opcion + "\r\n"
         print("Enviando:", peticion)
         my_socket.send(bytes(peticion, 'utf-8') + b'\r\n')
         data = my_socket.recv(1024)
@@ -86,17 +88,34 @@ if __name__ == "__main__":
 
         list_rec = data.decode('utf-8').split()
         if list_rec[1] == "401":
-            peticion = metodo + " sip:" + account_us + ":" + uaserver_puerto + " " + "SIP/2.0\r\n" + "Expires: " + opcion + " \r\n" + "Authorizacion: Digest response=123123212312321212123" + "\r\n"
+            peticion = metodo + " sip:" + account_us + ":" + uaserver_puerto
+            peticion += " " + "SIP/2.0\r\n" + "Expires: " + opcion + " \r\n"
+            peticion += "Authorizacion: Digest response=123123212312321212123"
+            peticion += "\r\n"
             print("Enviando:", peticion)
             my_socket.send(bytes(peticion, 'utf-8') + b'\r\n')
             datos = my_socket.recv(1024)
         print('Recibido --', datos.decode('utf-8'))
+
     elif metodo == "INVITE":
-        peticion = metodo + " sip:" + account_us + "SIP/2.0\r\n" + "Content-Type: applicatio/sdp\r\n\r\n" + "v=0\r\n" + "o=" + account_us + ' ' + uaserver_ip + "s=misession\r\n" + "t=0" + "m=audio" + rtpaudio_puerto + " RTP\r\n\r\n"
+        peticion = metodo + " sip:" + account_us + ' ' + "SIP/2.0\r\n"
+        peticion += "Content-Type: application/sdp\r\n\r\n" + "v=0\r\n" + "o="
+        peticion += account_us + ' ' + uaserver_ip + "\r\n" + "s=misession\r\n"
+        peticion +="t=0\r\n" + "m=audio " + rtpaudio_puerto + " RTP\r\n\r\n"
         print("Enviando:", peticion)
         my_socket.send(bytes(peticion, 'utf-8') + b'\r\n')
         data = my_socket.recv(1024)
         print('Recibido --', data.decode('utf-8'))
+        list_rec = data.decode('utf-8').split()
+        if list_rec[1] == "100" and list_rec[4] == "180" and list_rec[7] == "200":
+            metodo = "ACK"
+            peticion = metodo + " sip:" + account_us + " SIP/2.0\r\n"
+            print("Enviando", peticion)
+            my_socket.send(bytes(peticion, 'utf-8') + b'\r\n')
+            aEjecutar = "./mp32rtp -i " + uaserver_ip + " -p 23032 < "
+            aEjecutar += audio_path
+            print("Vamos a ejecutar", aEjecutar)
+            os.system(aEjecutar)
 
         #list_rec = data.decode('utf-8').split()
         #if list_rec[1] == "401":

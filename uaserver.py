@@ -41,6 +41,26 @@ class EchoHandler(socketserver.DatagramRequestHandler):
                     break
                 print("El proxy nos manda " + line.decode('utf-8'))
                 lista = line.decode('utf-8')
+                print(lista.split())
+                metodo = lista.split(' ')[0]
+                if metodo == "INVITE":
+                    mensaje_try = "SIP/2.0 100 Trying" + '\r\n'
+                    mensaje_ring = "SIP/2.0 180 Ring" + '\r\n'
+                    mensaje_ok = "SIP/2.0 200 OK" + '\r\n' + '\r\n'
+                    peticion = mensaje_ok
+                    peticion += "Content-Type: application/sdp\r\n\r\n"
+                    peticion += "v=0\r\n" + "o=" + account_us + ' '
+                    peticion += uaserver_ip + "\r\n" + "s=misession\r\n"
+                    peticion += "t=0\r\n" + "m=audio " + rtpaudio_puerto
+                    peticion += " RTP\r\n\r\n"
+                    self.wfile.write(b"SIP/2.0 100 Trying" + b"\r\n"
+                                     b"SIP/2.0 180 Ring" + b"\r\n")
+                    self.wfile.write(bytes(peticion, 'utf-8'))
+                elif metodo == "ACK":
+                    aEjecutar = "./mp32rtp -i " + uaserver_ip + " -p 23032 < "
+                    aEjecutar += audio_path
+                    print("Vamos a ejecutar", aEjecutar)
+                    os.system(aEjecutar)
 
 if __name__ == "__main__":
 
@@ -64,8 +84,6 @@ if __name__ == "__main__":
         print("Listening")
         serv_servidor.serve_forever()
 
-        
-
         #suponemos que Leonard ya esta autorizado
         #peticion = "REGISTER" + " sip:" + account_us + ":" + uaserver_puerto + " " + "SIP/2.0\r\n"
         #print("Enviando:", peticion)
@@ -73,6 +91,5 @@ if __name__ == "__main__":
         #data = my_socket.recv(1024)
         #print('Recibido --', data.decode('utf-8'))
 
-        
     else:
         sys.exit("Usage: python uaserver.py config")

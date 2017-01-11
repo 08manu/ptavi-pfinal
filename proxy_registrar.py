@@ -47,7 +47,8 @@ class EchoHandler(socketserver.DatagramRequestHandler):
             puerto = self.Dicc_serv[usuario][2]
             fecha_registro = self.Dicc_serv[usuario][3]
             expires = self.Dicc_serv[usuario][4]
-            fich_serv.write(us + ' ' + ip + ' ' + puerto + ' ' + str(fecha_registro) + ' ' + str(expires))
+            fich_serv.write(us + ' ' + ip + ' ' + puerto + ' '
+                            + str(fecha_registro) + ' ' + str(expires))
 
     def handle(self):
         while 1:
@@ -67,12 +68,15 @@ class EchoHandler(socketserver.DatagramRequestHandler):
 
                 if len(lista.split()) == 5:
                     nonce = 898989898798989898989
-                    mensaje = "SIP/2.0  401 Unauthorized" + '\r\n'"WWW Authenticate: Digest nonce =" + ' ' + str(nonce) + '\r\n'
+                    mensaje = "SIP/2.0  401 Unauthorized"
+                    mensaje += '\r\n'"WWW Authenticate: Digest nonce ="
+                    mensaje += ' ' + str(nonce) + '\r\n'
                     self.wfile.write(bytes(mensaje, 'utf-8'))
                 elif len(lista.split()) > 5:
                     mensaje = "SIP/2.0 200 OK" + '\r\n'
                     self.wfile.write(bytes(mensaje, 'utf-8'))
-                    self.Dicc_serv[us] = [us, ip, port, fecha_registro, expires] #insertamos elementos en el diccionario
+                    #insertamos elementos en el diccionario
+                    self.Dicc_serv[us] = [us, ip, port, fecha_registro, expires]
                 #Esto es para Leonard
                 #elif len(lista.split()) == 3:
                     #mensaje = "SIP/2.0 200 OK" + '\r\n'
@@ -85,11 +89,29 @@ class EchoHandler(socketserver.DatagramRequestHandler):
                     ip = self.Dicc_serv[us][1]
                     port = int(self.Dicc_serv[us][2])
                     my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                    my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                    my_socket.setsockopt(socket.SOL_SOCKET,
+                                         socket.SO_REUSEADDR, 1)
                     my_socket.connect((ip, int(port))) #Conecto con el server
                     my_socket.send(bytes(lista, 'utf-8') + b'\r\n')
-                    datos_invite = my_socket.recv(port)
-                print('Recibido --', datos_invite.decode('utf-8'))
+                    data = my_socket.recv(port)
+                    print('Recibido --', data.decode('utf-8'))
+                    list_rec = data.decode('utf-8')
+                    self.wfile.write(bytes((list_rec), 'utf-8') + b'\r\n')
+
+            elif metodo == "ACK":
+                print(lista.split())
+                us = lista.split(' ')[1].split(':')[1]
+                if us in self.Dicc_serv:
+                    ip = self.Dicc_serv[us][1]
+                    port = int(self.Dicc_serv[us][2])
+                    my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                    my_socket.setsockopt(socket.SOL_SOCKET,
+                                         socket.SO_REUSEADDR, 1)
+                    my_socket.connect((ip, int(port))) #Conecto con el cliente
+                    my_socket.send(bytes(lista, 'utf-8') + b'\r\n')
+                    datos_invite = my_socket.recv(self.client_address[1])
+                    #list_rec = datos_invite.decode('utf-8')
+                    self.wfile.write(bytes(datos_invite.decode('utf-8'), 'utf-8') + b'\r\n')
 
             self.ServidorRegistro()
             self.borrarExpirados()
@@ -111,9 +133,6 @@ class EchoHandler(socketserver.DatagramRequestHandler):
 if __name__ == "__main__":
 
     if len(sys.argv) == 2:
-        #hora = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(time.time()))
-        #hora_prueba = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(1233213))
-        hora_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         parser = make_parser()
         MyHandler = uaSERVER_PROX()
         parser.setContentHandler(MyHandler)
@@ -121,9 +140,9 @@ if __name__ == "__main__":
         Listaprox_xml = MyHandler.get_tags()
         regproxy_ip = Listaprox_xml[0][1]['ip']
         regproxy_puerto = int(Listaprox_xml[0][1]['puerto'])
-        serv_prox = socketserver.UDPServer((regproxy_ip, regproxy_puerto), EchoHandler)
-        print("Listening")
-        print(hora_actual)
+        serv_prox = socketserver.UDPServer((regproxy_ip, regproxy_puerto),
+                                            EchoHandler)
+        print("Server MiServidorBingBang listening at port 5555... \r\n")
         serv_prox.serve_forever()
         
     else:
