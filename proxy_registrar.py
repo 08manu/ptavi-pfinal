@@ -9,6 +9,7 @@ import socketserver
 from datetime import date, datetime
 import time
 import os
+import hashlib
 
 config = sys.argv[1]
 
@@ -34,21 +35,19 @@ class uaSERVER_PROX(ContentHandler):
 class EchoHandler(socketserver.DatagramRequestHandler):
 
     Dicc_serv = {}
+    Dicc_password = {}
 
     def ServidorRegistro(self):
-        fich_serv = open('basededatos.txt', 'w')
-        fich_serv.write("Fichero de texto con los usuarios registrados:\r\n")
-        #dicc_new = self.Dicc_serv
-        #dicc_newnew = dicc_new.dict.keys()
-        #print(self.dicc_newnew)
+        fich_serv = open('passwords.txt', 'w')
         for usuario in self.Dicc_serv.keys():
             us = self.Dicc_serv[usuario][0]
             ip = self.Dicc_serv[usuario][1]
             puerto = self.Dicc_serv[usuario][2]
             fecha_registro = self.Dicc_serv[usuario][3]
             expires = self.Dicc_serv[usuario][4]
+            fich_serv.write("USUARIOS REGISTRADOS" + '\r\n')
             fich_serv.write(us + ' ' + ip + ' ' + puerto + ' '
-                            + str(fecha_registro) + ' ' + str(expires))
+                            + str(fecha_registro) + ' ' + str(expires) + ';')
 
     def handle(self):
         while 1:
@@ -60,6 +59,7 @@ class EchoHandler(socketserver.DatagramRequestHandler):
             lista = line.decode('utf-8')
             metodo = lista.split(' ')[0]
             if metodo == "REGISTER":
+                print(lista.split())
                 us = lista.split(' ')[1].split(':')[1]
                 ip = str(self.client_address[0])
                 port = lista.split(' ')[1].split(':')[2]
@@ -77,12 +77,20 @@ class EchoHandler(socketserver.DatagramRequestHandler):
                     self.wfile.write(bytes(mensaje, 'utf-8'))
                     #insertamos elementos en el diccionario
                     self.Dicc_serv[us] = [us, ip, port, fecha_registro, expires]
-                #Esto es para Leonard
-                #elif len(lista.split()) == 3:
-                    #mensaje = "SIP/2.0 200 OK" + '\r\n'
-                    #self.wfile.write(bytes(mensaje, 'utf-8'))
-                    #self.Dicc_serv[us] = [us, ip, port]
-            #elif metodo == "INVITE":
+
+                    #fich_serv = open('passwords.txt', 'w')
+                    #response = lista.split(' ')[-1].split('=')[-1]
+                    #m = hashlib.md5()
+                    #for usuario in self.Dicc_password.keys():
+                        #if usuario == us:
+                            #password = self.Dicc_password[usuario]
+                    #m.update(bytes(password, 'utf-8'))
+                    #m.update(bytes(str(nonce), 'utf-8'))
+                    #if m.hexdigest() == response:
+                        #mensaje = "SIP/2.0 200 OK\r\n\r\n"
+                        #print("Enviamos :\r\n", mensaje)
+                        #self.wfile.write(bytes(mensaje, 'utf-8') + b'\r\n')
+
             if metodo == "INVITE":
                 us = lista.split(' ')[1].split(':')[1]
                 if us in self.Dicc_serv:
@@ -141,6 +149,8 @@ class EchoHandler(socketserver.DatagramRequestHandler):
                 lista_us.append(us)
         for cliente in lista_us:
             del self.Dicc_serv[cliente] #Eliminamos el elemento del diccionario
+
+        
 
                 
 if __name__ == "__main__":
