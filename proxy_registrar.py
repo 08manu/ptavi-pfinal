@@ -8,6 +8,7 @@ from xml.sax.handler import ContentHandler
 import socketserver
 from datetime import date, datetime
 import time
+import os
 
 config = sys.argv[1]
 
@@ -37,7 +38,6 @@ class EchoHandler(socketserver.DatagramRequestHandler):
     def ServidorRegistro(self):
         fich_serv = open('basededatos.txt', 'w')
         fich_serv.write("Fichero de texto con los usuarios registrados:\r\n")
-        print(self.Dicc_serv)
         #dicc_new = self.Dicc_serv
         #dicc_newnew = dicc_new.dict.keys()
         #print(self.dicc_newnew)
@@ -58,9 +58,7 @@ class EchoHandler(socketserver.DatagramRequestHandler):
             print("El cliente nos manda " + line.decode('utf-8'))
             lista = line.decode('utf-8')
             metodo = lista.split(' ')[0]
-            print(lista)
             if metodo == "REGISTER":
-                print(lista.split())
                 us = lista.split(' ')[1].split(':')[1]
                 ip = str(self.client_address[0])
                 port = lista.split(' ')[1].split(':')[2]
@@ -81,7 +79,17 @@ class EchoHandler(socketserver.DatagramRequestHandler):
                     #self.wfile.write(bytes(mensaje, 'utf-8'))
                     #self.Dicc_serv[us] = [us, ip, port]
             #elif metodo == "INVITE":
-                    
+            if metodo == "INVITE":
+                us = lista.split(' ')[1].split(':')[1]
+                if us in self.Dicc_serv:
+                    ip = self.Dicc_serv[us][1]
+                    port = int(self.Dicc_serv[us][2])
+                    my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                    my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                    my_socket.connect((ip, int(port))) #Conecto con el server
+                    my_socket.send(bytes(lista, 'utf-8') + b'\r\n')
+                    datos_invite = my_socket.recv(port)
+                print('Recibido --', datos_invite.decode('utf-8'))
 
             self.ServidorRegistro()
             self.borrarExpirados()
