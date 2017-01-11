@@ -117,13 +117,12 @@ if __name__ == "__main__":
             print("Vamos a ejecutar", aEjecutar)
             os.system(aEjecutar)
 
-        #list_rec = data.decode('utf-8').split()
-        #if list_rec[1] == "401":
-            #peticion = metodo + " sip:" + account_us + ":" + uaserver_puerto + " " + "SIP/2.0\r\n" + "Expires: " + opcion + " \r\n" + "Authorizacion: Digest response=123123212312321212123" + "\r\n"
-            #print("Enviando:", peticion)
-            #my_socket.send(bytes(peticion, 'utf-8') + b'\r\n')
-            #datos = my_socket.recv(1024)
-        #print('Recibido --', datos.decode('utf-8'))
+    elif metodo == "BYE":
+        peticion = metodo + " sip:" + account_us + ' ' + " SIP/2.0\r\n"
+        print("Enviando", peticion)
+        my_socket.send(bytes(peticion, 'utf-8') + b'\r\n')
+        data = my_socket.recv(1024)
+        print('Recibido --', data.decode('utf-8'))
 
 print("Terminando socket...")
 

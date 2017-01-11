@@ -44,8 +44,6 @@ class EchoHandler(socketserver.DatagramRequestHandler):
                 print(lista.split())
                 metodo = lista.split(' ')[0]
                 if metodo == "INVITE":
-                    mensaje_try = "SIP/2.0 100 Trying" + '\r\n'
-                    mensaje_ring = "SIP/2.0 180 Ring" + '\r\n'
                     mensaje_ok = "SIP/2.0 200 OK" + '\r\n' + '\r\n'
                     peticion = mensaje_ok
                     peticion += "Content-Type: application/sdp\r\n\r\n"
@@ -61,6 +59,12 @@ class EchoHandler(socketserver.DatagramRequestHandler):
                     aEjecutar += audio_path
                     print("Vamos a ejecutar", aEjecutar)
                     os.system(aEjecutar)
+                elif metodo == "BYE":
+                    self.wfile.write(b"SIP/2.0 200 OK" + b"\r\n")
+                elif metodo != "REGISTER" or "INVITE" or "ACK":
+                    self.wfile.write(b"SIP/2.0 405 Method Not Allowed" + b"\r\n")
+                else:
+                    self.wfile.write(b"SIP/2.0 400 Bad Request" + b"\r\n")
 
 if __name__ == "__main__":
 

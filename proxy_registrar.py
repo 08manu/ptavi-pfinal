@@ -99,7 +99,6 @@ class EchoHandler(socketserver.DatagramRequestHandler):
                     self.wfile.write(bytes((list_rec), 'utf-8') + b'\r\n')
 
             elif metodo == "ACK":
-                print(lista.split())
                 us = lista.split(' ')[1].split(':')[1]
                 if us in self.Dicc_serv:
                     ip = self.Dicc_serv[us][1]
@@ -107,11 +106,25 @@ class EchoHandler(socketserver.DatagramRequestHandler):
                     my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                     my_socket.setsockopt(socket.SOL_SOCKET,
                                          socket.SO_REUSEADDR, 1)
-                    my_socket.connect((ip, int(port))) #Conecto con el cliente
+                    my_socket.connect((ip, int(port))) 
                     my_socket.send(bytes(lista, 'utf-8') + b'\r\n')
                     datos_invite = my_socket.recv(self.client_address[1])
                     #list_rec = datos_invite.decode('utf-8')
                     self.wfile.write(bytes(datos_invite.decode('utf-8'), 'utf-8') + b'\r\n')
+
+            elif metodo == "BYE":
+                us = lista.split(' ')[1].split(':')[1]
+                if us in self.Dicc_serv:
+                    ip = self.Dicc_serv[us][1]
+                    port = int(self.Dicc_serv[us][2])
+                    my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                    my_socket.setsockopt(socket.SOL_SOCKET,
+                                         socket.SO_REUSEADDR, 1)
+                    my_socket.connect((ip, int(port))) 
+                    my_socket.send(bytes(lista, 'utf-8') + b'\r\n')
+                    datos_invite = my_socket.recv(port)
+                    self.wfile.write(bytes(datos_invite.decode('utf-8'), 'utf-8') + b'\r\n')
+                    print('Recibido --', datos_invite.decode('utf-8'))
 
             self.ServidorRegistro()
             self.borrarExpirados()
